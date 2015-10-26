@@ -10,7 +10,7 @@
         android:id="@+id/button1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Clear Cache"/>
+        android:text="@string/sort"/>
 
     <GridView
         android:id="@+id/grid_movie"

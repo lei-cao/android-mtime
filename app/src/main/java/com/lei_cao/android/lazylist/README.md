@@ -1,1 +1,0 @@
-Copied from [LazyList](https://github.com/thest1/LazyList) to learn the basic usage of loading images. Will replace with better lib.
