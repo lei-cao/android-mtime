@@ -30,7 +30,6 @@ proguard/
 *.log
 
 # Android studio
-/.idea/workspace.xml
-/.idea/libraries
+/.idea
 
 app/src/main/res/values/secrets.xml
