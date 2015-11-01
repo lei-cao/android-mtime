@@ -6,17 +6,18 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.lei_cao.android.mtime.app.models.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class MovieGridAdapter extends ArrayAdapter<String> {
+public class MovieGridAdapter extends ArrayAdapter<Movie> {
 
     private Activity activity;
-    private ArrayList<String> items;
+    private ArrayList<Movie> items;
 
 
-    public MovieGridAdapter(Activity a, ArrayList<String> i) {
+    public MovieGridAdapter(Activity a, ArrayList<Movie> i) {
         super(a, 0, i);
         activity = a;
         items = i;
@@ -29,7 +30,7 @@ public class MovieGridAdapter extends ArrayAdapter<String> {
                     .inflate(R.layout.grid_item_movie, parent, false);
         }
 
-        String url = getItem(position);
+        String url = getItem(position).getImageUrl();
         ImageView imageView = (ImageView) convertView
                 .findViewById(R.id.grid_item_movie_image);
 

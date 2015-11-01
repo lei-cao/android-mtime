@@ -9,9 +9,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+
+import com.lei_cao.android.mtime.app.models.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,14 +30,47 @@ import java.util.ArrayList;
 
 public class MoviesFragment extends Fragment {
 
+    // The param value for fetching movies by popularity desc
     final String sortByPopularityDesc = "popularity.desc";
+
+    // The param value for fetching movies by vote average desc
     final String sortByVoteAverageDesc = "vote_average.desc";
 
+    // The grid view
     GridView grid;
-    MovieGridAdapter adapter;
-    ArrayList<String> images = new ArrayList<String>();
 
-    public MoviesFragment() {
+    // The movies adapter for the grid view
+    MovieGridAdapter adapter;
+
+    // Current page loaded in the adapter
+    int currentPage = 1;
+
+    // The task is loading
+    boolean loadingMore = true;
+
+    // If all data fetched, stop loading data from server
+    boolean stopLoadingData = false;
+
+    // A MovieTask to fetch movies from server
+    private class MovieTask {
+
+        // The sorting option
+        String sort = sortByPopularityDesc;
+
+        // The page to fetch
+        int page = 1;
+
+        // Clear the adapter or not
+        boolean clearAdapter = false;
+
+        // The movies fetched by task
+        ArrayList<Movie> movies = new ArrayList<Movie>();
+
+        public MovieTask(String sort, int page, boolean clearAdapter) {
+            this.sort = sort;
+            this.page = page;
+            this.clearAdapter = clearAdapter;
+        }
     }
 
     @Override
@@ -44,15 +80,35 @@ public class MoviesFragment extends Fragment {
 
         grid = (GridView) rootView.findViewById(R.id.grid_movie);
 
-        adapter = new MovieGridAdapter(getActivity(), images);
+        adapter = new MovieGridAdapter(getActivity(), new ArrayList<Movie>());
         grid.setAdapter(adapter);
 
+        // Click on the grid's item, will navigate to the detail view
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String image = adapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, image);
+                String extraName = getResources().getString(R.string.intent_movie_name);
+                Movie movie = adapter.getItem(position);
+                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra(extraName, movie);
                 startActivity(intent);
+            }
+        });
+
+        // While scrolling the grid, loading more data from the server
+        grid.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int lastInScreen = firstVisibleItem + visibleItemCount;
+                if ((lastInScreen == totalItemCount) && !loadingMore) {
+                    if (!stopLoadingData) {
+                        new FetchMovieTask().execute(new MovieTask(sortByPopularityDesc, currentPage++, false));
+                    }
+                }
             }
         });
 
@@ -62,7 +118,7 @@ public class MoviesFragment extends Fragment {
         Button sortByVoting = (Button) rootView.findViewById(R.id.sort_by_voting);
         sortByVoting.setOnClickListener(listenerSortByVoting);
 
-        new FetchMovieTask().execute(sortByPopularityDesc);
+        new FetchMovieTask().execute(new MovieTask(sortByPopularityDesc, currentPage, true));
 
         return rootView;
     }
@@ -70,22 +126,26 @@ public class MoviesFragment extends Fragment {
     public View.OnClickListener listenerSortByPopularity = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            new FetchMovieTask().execute(sortByPopularityDesc);
+            currentPage = 1;
+            stopLoadingData = false;
+            new FetchMovieTask().execute(new MovieTask(sortByPopularityDesc, currentPage, true));
         }
     };
 
     public View.OnClickListener listenerSortByVoting = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            new FetchMovieTask().execute(sortByVoteAverageDesc);
+            currentPage = 1;
+            stopLoadingData = false;
+            new FetchMovieTask().execute(new MovieTask(sortByVoteAverageDesc, currentPage, true));
         }
     };
 
-    private class FetchMovieTask extends AsyncTask<String, Integer, String[]> {
+    private class FetchMovieTask extends AsyncTask<MovieTask, Integer, MovieTask> {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
-        private String[] parseMovieJson(String movieJsonStr) throws JSONException {
+        private ArrayList<Movie> parseMovieJson(String movieJsonStr) throws JSONException {
             final String PAGE = "page";
             final String RESULTS = "results";
             final String POSTER_PATH = "poster_path";
@@ -94,37 +154,44 @@ public class MoviesFragment extends Fragment {
             final String VOTE_AVERAGE = "vote_average";
             final String RELEASE_DATE = "release_date";
 
-            ArrayList<String> result = new ArrayList<String>();
+            ArrayList<Movie> movies = new ArrayList<Movie>();
             JSONObject movieJson = new JSONObject(movieJsonStr);
 
             JSONArray movieArray = movieJson.getJSONArray(RESULTS);
             for (int i = 0; i < movieArray.length(); i++) {
-                JSONObject movie = movieArray.getJSONObject(i);
-                result.add(movie.getString(POSTER_PATH));
-                Log.v(LOG_TAG, result.get(i));
+                Movie movie = new Movie();
+                JSONObject movieObj = movieArray.getJSONObject(i);
+                movie.posterPath = movieObj.getString(POSTER_PATH);
+                movie.title = movieObj.getString(TITLE);
+                movie.overview = movieObj.getString(OVERVIEW);
+                movie.voteAverage = movieObj.getString(VOTE_AVERAGE);
+                movie.releaseDate = movieObj.getString(RELEASE_DATE);
+                movies.add(movie);
             }
-            return result.toArray(new String[result.size()]);
+            return movies;
         }
 
-        private String getImageUrl(String path) {
-            final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
-            final String WIDTH = "w185";
-
-            return IMAGE_BASE_URL + WIDTH + path;
+        protected MovieTask doInBackground(MovieTask... tasks) {
+            loadingMore = true;
+            tasks[0].movies = fetchData(tasks[0]);
+            return tasks[0];
         }
 
-        protected String[] doInBackground(String... params) {
-            return fetchData(params[0]);
-        }
-
-        protected void onPostExecute(String[] result) {
-            if (result != null) {
-                adapter.clear();
-                for (String posterPath : result) {
-                    adapter.add(getImageUrl(posterPath));
+        protected void onPostExecute(MovieTask task) {
+            if (task.movies.size() != 0) {
+                if (task.clearAdapter) {
+                    adapter.clear();
                 }
+                for (Movie movie : task.movies) {
+                    adapter.add(movie);
+                }
+                currentPage++;
+            } else {
+                // Seems no more data from the server anymore, stop loading.
+                // It's better to have explicit check
+                stopLoadingData = true;
             }
-            Log.v(LOG_TAG, result.toString());
+            loadingMore = false;
         }
 
         /**
@@ -132,7 +199,7 @@ public class MoviesFragment extends Fragment {
          *
          * @return
          */
-        public String[] fetchData(String sort) {
+        public ArrayList<Movie> fetchData(MovieTask task) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -141,16 +208,14 @@ public class MoviesFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String movieJsonStr = null;
 
-            String page = "1";
-
             try {
                 final String MOVIE_DB_BASE_URL = "http://api.themoviedb.org/3/discover/movie?api_key=" + getResources().getString(R.string.themoviedb_api_key);
                 final String PAGE_PARAM = "page";
                 final String SORT_BY_PARAM = "sort_by";
 
                 Uri movieUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                        .appendQueryParameter(PAGE_PARAM, page)
-                        .appendQueryParameter(SORT_BY_PARAM, sort)
+                        .appendQueryParameter(PAGE_PARAM, String.valueOf(task.page))
+                        .appendQueryParameter(SORT_BY_PARAM, task.sort)
                         .build();
 
                 URL url = new URL(movieUri.toString());

@@ -5,4 +5,5 @@
     <string name="sort_by_voting">Sort By Voting</string>
     <string name="sort_by_popularity">Sort By Popularity</string>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="intent_movie_name">MOVIE</string>
 </resources>

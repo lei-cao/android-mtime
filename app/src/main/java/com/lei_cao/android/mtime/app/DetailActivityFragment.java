@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.lei_cao.android.mtime.app.models.Movie;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -23,12 +24,13 @@ public class DetailActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
-        if (intent == null || !intent.hasExtra(intent.EXTRA_TEXT)) {
+        String extraName = getResources().getString(R.string.intent_movie_name);
+        if (intent == null || !intent.hasExtra(extraName)) {
             return rootView;
         }
-        String url = intent.getStringExtra(Intent.EXTRA_TEXT);
+        Movie movie = (Movie) intent.getParcelableExtra(extraName);
         ImageView image = (ImageView) rootView.findViewById(R.id.detail_movie_image);
-        Picasso.with(getActivity()).load(url).noFade().into(image);
+        Picasso.with(getActivity()).load(movie.getImageUrl()).noFade().into(image);
 
         return rootView;
     }
