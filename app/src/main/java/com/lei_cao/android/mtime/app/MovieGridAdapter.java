@@ -30,7 +30,7 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
                     .inflate(R.layout.grid_item_movie, parent, false);
         }
 
-        String url = getItem(position).getImageUrl();
+        String url = getItem(position).getListUrl();
         ImageView imageView = (ImageView) convertView
                 .findViewById(R.id.grid_item_movie_image);
 

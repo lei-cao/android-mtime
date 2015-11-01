@@ -48,9 +48,18 @@ public class Movie implements Parcelable {
     public Movie() {
     }
 
-    public String getImageUrl() {
+    public String getListUrl() {
+        final String width = "w185";
+        return getImageUrl(width);
+    }
+
+    public String getDetailUrl() {
+        final String width = "w342";
+        return getImageUrl(width);
+    }
+
+    private String getImageUrl(String width) {
         final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
-        final String WIDTH = "w185";
-        return IMAGE_BASE_URL + WIDTH + posterPath;
+        return IMAGE_BASE_URL + width + posterPath;
     }
 }

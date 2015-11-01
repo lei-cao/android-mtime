@@ -7,13 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.lei_cao.android.mtime.app.models.Movie;
 import com.squareup.picasso.Picasso;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class DetailActivityFragment extends Fragment {
 
     public DetailActivityFragment() {
@@ -30,7 +28,18 @@ public class DetailActivityFragment extends Fragment {
         }
         Movie movie = (Movie) intent.getParcelableExtra(extraName);
         ImageView image = (ImageView) rootView.findViewById(R.id.detail_movie_image);
-        Picasso.with(getActivity()).load(movie.getImageUrl()).noFade().into(image);
+        Picasso.with(getActivity()).load(movie.getDetailUrl()).noFade().into(image);
+
+        // set title, overview, rating, release date
+        TextView title = (TextView) rootView.findViewById(R.id.detail_movie_title);
+        TextView overview = (TextView) rootView.findViewById(R.id.detail_movie_overview);
+        TextView vote = (TextView) rootView.findViewById(R.id.detail_movie_vote);
+        TextView releaseDate = (TextView) rootView.findViewById(R.id.detail_movie_release_date);
+
+        title.setText(movie.title);
+        overview.setText(movie.overview);
+        vote.setText(movie.voteAverage);
+        releaseDate.setText(movie.releaseDate);
 
         return rootView;
     }
