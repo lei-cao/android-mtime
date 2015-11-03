@@ -6,4 +6,5 @@
     <string name="sort_by_popularity">Sort By Popularity</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="intent_movie_name">MOVIE</string>
+    <string name="movie_videos_textview">play on youtube</string>
 </resources>
