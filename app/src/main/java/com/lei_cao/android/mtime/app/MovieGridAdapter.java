@@ -1,6 +1,7 @@
 package com.lei_cao.android.mtime.app;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 public class MovieGridAdapter extends ArrayAdapter<Movie> {
 
     private Activity activity;
+
     private ArrayList<Movie> items;
 
 
@@ -41,5 +43,10 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
                 .into(imageView);
 
         return convertView;
+    }
+
+
+    public void setItems(ArrayList<Movie> items) {
+        this.items = items;
     }
 }

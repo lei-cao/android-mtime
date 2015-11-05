@@ -2,10 +2,8 @@ package com.lei_cao.android.mtime.app;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,20 +13,31 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.lei_cao.android.mtime.app.models.Movie;
-import com.lei_cao.android.mtime.app.models.TheMovieDb;
 import com.lei_cao.android.mtime.app.models.Video;
+import com.lei_cao.android.mtime.app.services.MovieResponses;
+import com.lei_cao.android.mtime.app.services.MovieService;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 public class DetailActivityFragment extends Fragment {
 
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
 
-    // TheMovieDb for getting TheMovieDb info
-    TheMovieDb theMovieDb = null;
-
+    // The videos adapter
     VideosAdapter adapter;
+
+    // The movieDb service
+    MovieService service;
+
+    // The apiKey
+    String apiKey;
+
 
     public DetailActivityFragment() {
     }
@@ -38,7 +47,9 @@ public class DetailActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        theMovieDb = new TheMovieDb(getResources().getString(R.string.themoviedb_api_key));
+
+        service = new MovieService();
+        apiKey = getResources().getString(R.string.themoviedb_api_key);
 
         Intent intent = getActivity().getIntent();
         String extraName = getResources().getString(R.string.intent_movie_name);
@@ -53,15 +64,12 @@ public class DetailActivityFragment extends Fragment {
         TextView title = (TextView) rootView.findViewById(R.id.detail_movie_title);
         TextView overview = (TextView) rootView.findViewById(R.id.detail_movie_overview);
         TextView vote = (TextView) rootView.findViewById(R.id.detail_movie_vote);
-        TextView releaseDate = (TextView) rootView.findViewById(R.id.detail_movie_release_date);
+        final TextView releaseDate = (TextView) rootView.findViewById(R.id.detail_movie_release_date);
 
         title.setText(movie.title);
         overview.setText(movie.overview);
         vote.setText(movie.voteAverage);
         releaseDate.setText(movie.releaseDate);
-
-        Log.v(LOG_TAG, movie.id.toString());
-        Log.v(LOG_TAG, theMovieDb.MovieVideosUri(movie.id).toString());
 
         ListView videos = (ListView) rootView.findViewById(R.id.detail_movie_videos);
         adapter = new VideosAdapter(getActivity(), new ArrayList<Video>());
@@ -71,34 +79,28 @@ public class DetailActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Video video = adapter.getItem(position);
-
-                Log.i("Video", "Video Playing....");
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(video.GetVideoUrl())));
-                Log.i("Video", "Video Playing....");
             }
         });
 
-        new FetchVideosTask().execute(movie.id);
-        return rootView;
-    }
-
-    private class FetchVideosTask extends AsyncTask<Long, Integer, ArrayList<Video>> {
-
-        @Override
-        protected ArrayList<Video> doInBackground(Long... tasks) {
-            ArrayList<Video> videos = theMovieDb.FetchMovieVideos(tasks[0]);
-            return videos;
-        }
-
-        protected void onPostExecute(ArrayList<Video> videos) {
-            Log.v(LOG_TAG, String.valueOf(videos.size()));
-            if (videos.size() != 0) {
-                adapter.clear();
-                for (Video video : videos) {
-                    adapter.add(video);
-                    Log.v(LOG_TAG, video.name);
+        Call<MovieResponses.VideosResponse> call = service.service.movieVideos(String.valueOf(movie.id), apiKey);
+        call.enqueue(new Callback<MovieResponses.VideosResponse>() {
+            @Override
+            public void onResponse(Response<MovieResponses.VideosResponse> response, Retrofit retrofit) {
+                if (response.body() != null && response.body().results.size() != 0) {
+                    adapter.clear();
+                    for (Video v : response.body().results) {
+                        adapter.add(v);
+                    }
+                    adapter.notifyDataSetChanged();
                 }
             }
-        }
+
+            @Override
+            public void onFailure(Throwable t) {
+            }
+        });
+
+        return rootView;
     }
 }

@@ -3,21 +3,24 @@ package com.lei_cao.android.mtime.app.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Represent the movie fetched from the API and passed between intents
  */
 public class Movie implements Parcelable {
     public Long id;
+
+    @SerializedName("poster_path")
     public String posterPath;
+
     public String title;
     public String overview;
+
+    @SerializedName("vote_average")
     public String voteAverage;
+
+    @SerializedName("release_date")
     public String releaseDate;
 
     @Override
@@ -70,32 +73,5 @@ public class Movie implements Parcelable {
     private String getImageUrl(String width) {
         final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
         return IMAGE_BASE_URL + width + posterPath;
-    }
-
-    public static ArrayList<Movie> parseMovieJson(String movieJsonStr) throws JSONException {
-        final String RESULTS = "results";
-        final String ID = "id";
-        final String POSTER_PATH = "poster_path";
-        final String TITLE = "title";
-        final String OVERVIEW = "overview";
-        final String VOTE_AVERAGE = "vote_average";
-        final String RELEASE_DATE = "release_date";
-
-        ArrayList<Movie> movies = new ArrayList<Movie>();
-        JSONObject movieJson = new JSONObject(movieJsonStr);
-
-        JSONArray movieArray = movieJson.getJSONArray(RESULTS);
-        for (int i = 0; i < movieArray.length(); i++) {
-            Movie movie = new Movie();
-            JSONObject movieObj = movieArray.getJSONObject(i);
-            movie.id = movieObj.getLong(ID);
-            movie.posterPath = movieObj.getString(POSTER_PATH);
-            movie.title = movieObj.getString(TITLE);
-            movie.overview = movieObj.getString(OVERVIEW);
-            movie.voteAverage = movieObj.getString(VOTE_AVERAGE);
-            movie.releaseDate = movieObj.getString(RELEASE_DATE);
-            movies.add(movie);
-        }
-        return movies;
     }
 }

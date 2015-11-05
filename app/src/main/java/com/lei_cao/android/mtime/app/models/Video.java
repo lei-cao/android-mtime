@@ -3,15 +3,6 @@ package com.lei_cao.android.mtime.app.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-
-/**
- * Created by leicao on 3/11/15.
- */
 public class Video implements Parcelable {
     public String id;
     public String key;
@@ -61,27 +52,5 @@ public class Video implements Parcelable {
 
     public String GetVideoUrl() {
         return "http://www.youtube.com/watch?v=" + this.key;
-    }
-
-    public static ArrayList<Video> parseVideoJson(String json) throws JSONException {
-        final String RESULTS = "results";
-
-        ArrayList<Video> videos = new ArrayList<Video>();
-        JSONObject videoJson = new JSONObject(json);
-
-        JSONArray videoArray = videoJson.getJSONArray(RESULTS);
-        for (int i = 0; i < videoArray.length(); i++) {
-            Video video = new Video();
-            JSONObject videoObj = videoArray.getJSONObject(i);
-            video.id = videoObj.getString("id");
-            video.key = videoObj.getString("key");
-            video.name = videoObj.getString("name");
-            video.site = videoObj.getString("site");
-            video.size = videoObj.getString("size");
-            video.type = videoObj.getString("type");
-
-            videos.add(video);
-        }
-        return videos;
     }
 }
