@@ -11,11 +11,13 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 
+import com.lei_cao.android.mtime.app.DAO.MoviesDAO;
 import com.lei_cao.android.mtime.app.models.Movie;
 import com.lei_cao.android.mtime.app.services.MovieResponses;
 import com.lei_cao.android.mtime.app.services.MovieService;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -30,6 +32,7 @@ public class MoviesFragment extends Fragment {
     // The param value for fetching movies by vote average desc
     final String sortByVoteAverageDesc = "vote_average.desc";
 
+    String sort = sortByPopularityDesc;
 
     MovieService service;
 
@@ -42,10 +45,7 @@ public class MoviesFragment extends Fragment {
     MovieGridAdapter adapter;
 
     // The movies collection of sortByPopularityDesc
-    ArrayList<Movie> moviesSortByPopularityDesc = new ArrayList<>();
-
-    // The movies collection of sortByVoteAverageDesc
-    ArrayList<Movie> moviesSortByVoteAverageDesc = new ArrayList<>();
+    List<Movie> movies = new ArrayList<>();
 
     // Current page loaded in the adapter
     int currentPage = 1;
@@ -55,6 +55,8 @@ public class MoviesFragment extends Fragment {
 
     // If all data fetched, stop loading data from server
     boolean stopLoadingData = false;
+
+    MoviesDAO dao;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,7 +68,7 @@ public class MoviesFragment extends Fragment {
 
         grid = (GridView) rootView.findViewById(R.id.grid_movie);
 
-        adapter = new MovieGridAdapter(getActivity(), moviesSortByPopularityDesc);
+        adapter = new MovieGridAdapter(getActivity(), movies);
         grid.setAdapter(adapter);
 
         // Click on the grid's item, will navigate to the detail view
@@ -92,8 +94,8 @@ public class MoviesFragment extends Fragment {
                 int lastInScreen = firstVisibleItem + visibleItemCount;
                 if ((lastInScreen == totalItemCount) && !loadingMore) {
                     if (!stopLoadingData && !loadingMore) {
-                        loadingMore = true;
-                        Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sortByPopularityDesc);
+//                        loadingMore = true;
+                        Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sort);
                         call.enqueue(callbackSortByPopularityDesc);
                     }
                 }
@@ -106,12 +108,18 @@ public class MoviesFragment extends Fragment {
         Button sortByVoting = (Button) rootView.findViewById(R.id.sort_by_voting);
         sortByVoting.setOnClickListener(listenerSortByVoting);
 
+        Button myFavorites = (Button) rootView.findViewById(R.id.sort_by_favorite);
+        myFavorites.setOnClickListener(listenerMyFavorites);
+
         if (!stopLoadingData && !loadingMore) {
             loadingMore = true;
 
-            Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sortByPopularityDesc);
+            Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sort);
             call.enqueue(callbackSortByPopularityDesc);
         }
+
+        dao = new MoviesDAO(this.getActivity());
+        dao.open();
 
         return rootView;
     }
@@ -122,9 +130,8 @@ public class MoviesFragment extends Fragment {
 
             if (response.body().results.size() != 0) {
                 for (Movie m : response.body().results) {
-                    moviesSortByPopularityDesc.add(m);
+                    adapter.add(m);
                 }
-                adapter.notifyDataSetChanged();
                 currentPage++;
             } else {
                 // Seems no more data from the server anymore, stop loading.
@@ -146,9 +153,8 @@ public class MoviesFragment extends Fragment {
 
             if (response.body().results.size() != 0) {
                 for (Movie m : response.body().results) {
-                    moviesSortByVoteAverageDesc.add(m);
+                    adapter.add(m);
                 }
-                adapter.notifyDataSetChanged();
                 currentPage++;
             } else {
                 // Seems no more data from the server anymore, stop loading.
@@ -170,10 +176,9 @@ public class MoviesFragment extends Fragment {
             currentPage = 1;
             stopLoadingData = false;
             loadingMore = true;
-            moviesSortByPopularityDesc.clear();
             adapter.clear();
-            adapter.setItems(moviesSortByPopularityDesc);
-            Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sortByPopularityDesc);
+            sort = sortByPopularityDesc;
+            Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sort);
             call.enqueue(callbackSortByPopularityDesc);
         }
     };
@@ -184,11 +189,34 @@ public class MoviesFragment extends Fragment {
             currentPage = 1;
             stopLoadingData = false;
             loadingMore = true;
-            moviesSortByVoteAverageDesc.clear();
             adapter.clear();
-            adapter.setItems(moviesSortByVoteAverageDesc);
-            Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sortByVoteAverageDesc);
+            sort = sortByVoteAverageDesc;
+            Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sort);
             call.enqueue(callbackSortByVoteAverageDesc);
         }
     };
+
+    public View.OnClickListener listenerMyFavorites = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            stopLoadingData = true;
+            List<Movie> myMovies = dao.getAllMovies();
+            adapter.clear();
+            for (Movie m : myMovies) {
+                adapter.add(m);
+            }
+        }
+    };
+
+    @Override
+    public void onResume() {
+        dao.open();
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        dao.close();
+        super.onPause();
+    }
 }

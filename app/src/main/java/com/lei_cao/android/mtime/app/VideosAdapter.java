@@ -8,13 +8,13 @@ import android.widget.TextView;
 
 import com.lei_cao.android.mtime.app.models.Video;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class VideosAdapter extends ArrayAdapter<Video> {
     private Activity activity;
-    private ArrayList<Video> items;
+    private List<Video> items;
 
-    public VideosAdapter(Activity a, ArrayList<Video> i) {
+    public VideosAdapter(Activity a, List<Video> i) {
         super(a, 0, i);
         activity = a;
         items = i;

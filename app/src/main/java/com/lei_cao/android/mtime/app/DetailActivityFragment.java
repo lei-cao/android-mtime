@@ -8,10 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.lei_cao.android.mtime.app.DAO.MoviesDAO;
 import com.lei_cao.android.mtime.app.models.Movie;
 import com.lei_cao.android.mtime.app.models.Video;
 import com.lei_cao.android.mtime.app.services.MovieResponses;
@@ -38,6 +40,7 @@ public class DetailActivityFragment extends Fragment {
     // The apiKey
     String apiKey;
 
+    MoviesDAO dao;
 
     public DetailActivityFragment() {
     }
@@ -56,7 +59,7 @@ public class DetailActivityFragment extends Fragment {
         if (intent == null || !intent.hasExtra(extraName)) {
             return rootView;
         }
-        Movie movie = (Movie) intent.getParcelableExtra(extraName);
+        final Movie movie = (Movie) intent.getParcelableExtra(extraName);
         ImageView image = (ImageView) rootView.findViewById(R.id.detail_movie_image);
         Picasso.with(getActivity()).load(movie.getDetailUrl()).noFade().into(image);
 
@@ -101,6 +104,46 @@ public class DetailActivityFragment extends Fragment {
             }
         });
 
+
+        dao = new MoviesDAO(this.getActivity());
+        dao.open();
+
+        final ImageButton favorite = (ImageButton) rootView.findViewById(R.id.detail_movie_favorite_imagebutton);
+        Movie m = dao.getMovie(movie.id);
+        if (m != null) {
+            movie.favorited = true;
+            favorite.setImageResource(R.drawable.abc_btn_rating_star_on_mtrl_alpha);
+        }
+        favorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setEnabled(false);
+                if (movie.favorited) {
+                    dao.deleteMovie(movie);
+                    favorite.setImageResource(R.drawable.abc_btn_rating_star_off_mtrl_alpha);
+                    movie.favorited = false;
+                } else {
+                    Movie m = dao.createMovie(movie);
+                    if (m != null) {
+                        favorite.setImageResource(R.drawable.abc_btn_rating_star_on_mtrl_alpha);
+                        movie.favorited = true;
+                    }
+                }
+                v.setEnabled(true);
+            }
+        });
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        dao.open();
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        dao.close();
+        super.onPause();
     }
 }

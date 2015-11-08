@@ -1,7 +1,6 @@
 package com.lei_cao.android.mtime.app;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -10,16 +9,16 @@ import android.widget.ImageView;
 import com.lei_cao.android.mtime.app.models.Movie;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MovieGridAdapter extends ArrayAdapter<Movie> {
 
     private Activity activity;
 
-    private ArrayList<Movie> items;
+    private List<Movie> items;
 
 
-    public MovieGridAdapter(Activity a, ArrayList<Movie> i) {
+    public MovieGridAdapter(Activity a, List<Movie> i) {
         super(a, 0, i);
         activity = a;
         items = i;
@@ -43,10 +42,5 @@ public class MovieGridAdapter extends ArrayAdapter<Movie> {
                 .into(imageView);
 
         return convertView;
-    }
-
-
-    public void setItems(ArrayList<Movie> items) {
-        this.items = items;
     }
 }

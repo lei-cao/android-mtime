@@ -2,9 +2,14 @@
     <string name="app_name">MTime</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="sort_by_voting">Sort By Voting</string>
-    <string name="sort_by_popularity">Sort By Popularity</string>
+    <string name="sort_by_voting">Best!</string>
+    <string name="sort_by_popularity">Popular</string>
+    <string name="sort_by_favorite">Favorites</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="intent_movie_name">MOVIE</string>
     <string name="movie_videos_textview">play on youtube</string>
+    <string name="movie_review_content_textview">Here is the review content. this is a very good movie!</string>
+    <string name="movie_review_author_textview">UserName</string>
+    <string name="detail_trailers_title">Trailers:</string>
+    <string name="detail_reviews_title">Reviews:</string>
 </resources>

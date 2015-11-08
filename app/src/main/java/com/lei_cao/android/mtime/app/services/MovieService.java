@@ -12,10 +12,24 @@ public class MovieService {
 
     public interface Interface {
         @GET("discover/movie")
-        Call<MovieResponses.MoviesResponse> discoverMovies(@Query("api_key") String apiKey, @Query("page") int page, @Query("sort_by") String sort);
+        Call<MovieResponses.MoviesResponse> discoverMovies(
+                @Query("api_key") String apiKey,
+                @Query("page") int page,
+                @Query("sort_by") String sort
+        );
 
         @GET("movie/{id}/videos")
-        Call<MovieResponses.VideosResponse> movieVideos(@Path("id") String id, @Query("api_key") String apiKey);
+        Call<MovieResponses.VideosResponse> movieVideos(
+                @Path("id") String id,
+                @Query("api_key") String apiKey
+        );
+
+        @GET("movie/{id}/reviews")
+        Call<MovieResponses.ReviewsResponse> movieReviews(
+                @Path("id") String id,
+                @Query("api_key") String apiKey,
+                @Query("page") int page
+        );
     }
 
     Retrofit retrofit = new Retrofit.Builder()

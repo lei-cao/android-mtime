@@ -23,6 +23,8 @@ public class Movie implements Parcelable {
     @SerializedName("release_date")
     public String releaseDate;
 
+    public boolean favorited;
+
     @Override
     public int describeContents() {
         return 0;
@@ -36,6 +38,7 @@ public class Movie implements Parcelable {
         out.writeString(overview);
         out.writeString(voteAverage);
         out.writeString(releaseDate);
+        out.writeByte((byte) (favorited ? 1 : 0));
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -55,6 +58,7 @@ public class Movie implements Parcelable {
         overview = in.readString();
         voteAverage = in.readString();
         releaseDate = in.readString();
+        favorited = in.readByte() != 0;
     }
 
     public Movie() {
