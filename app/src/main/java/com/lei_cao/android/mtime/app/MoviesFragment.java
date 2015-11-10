@@ -77,7 +77,7 @@ public class MoviesFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String extraName = getResources().getString(R.string.intent_movie_name);
                 Movie movie = adapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra(extraName, movie);
+                Intent intent = new Intent(getActivity(), DetailsActivity.class).putExtra(extraName, movie);
                 startActivity(intent);
             }
         });
