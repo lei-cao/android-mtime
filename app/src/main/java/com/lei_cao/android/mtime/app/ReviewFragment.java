@@ -50,7 +50,7 @@ public class ReviewFragment extends Fragment {
         apiKey = getResources().getString(R.string.themoviedb_api_key);
 
         Intent intent = getActivity().getIntent();
-        String extraName = getResources().getString(R.string.intent_movie_name);
+        String extraName = DetailActivityFragment.DETAIL_MOVIE;
         if (intent == null || !intent.hasExtra(extraName)) {
             return rootView;
         }

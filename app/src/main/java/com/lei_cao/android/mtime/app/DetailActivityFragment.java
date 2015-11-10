@@ -31,6 +31,8 @@ public class DetailActivityFragment extends Fragment {
 
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
 
+    static final String DETAIL_MOVIE = "MOVIE";
+
     // The videos adapter
     VideosAdapter adapter;
 
@@ -42,6 +44,8 @@ public class DetailActivityFragment extends Fragment {
 
     MoviesDAO dao;
 
+    Movie movie;
+
     public DetailActivityFragment() {
     }
 
@@ -50,16 +54,24 @@ public class DetailActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            movie = arguments.getParcelable(DetailActivityFragment.DETAIL_MOVIE);
+        } else {
+            Intent intent = getActivity().getIntent();
+            if (intent == null || !intent.hasExtra(DetailActivityFragment.DETAIL_MOVIE)) {
+                return rootView;
+            }
+            movie = (Movie) intent.getParcelableExtra(DetailActivityFragment.DETAIL_MOVIE);
+        }
+        if (movie == null) {
+            return rootView;
+        }
 
         service = new MovieService();
         apiKey = getResources().getString(R.string.themoviedb_api_key);
 
-        Intent intent = getActivity().getIntent();
-        String extraName = getResources().getString(R.string.intent_movie_name);
-        if (intent == null || !intent.hasExtra(extraName)) {
-            return rootView;
-        }
-        final Movie movie = (Movie) intent.getParcelableExtra(extraName);
+
         ImageView image = (ImageView) rootView.findViewById(R.id.detail_movie_image);
         Picasso.with(getActivity()).load(movie.getDetailUrl()).noFade().into(image);
 
@@ -137,13 +149,17 @@ public class DetailActivityFragment extends Fragment {
 
     @Override
     public void onResume() {
-        dao.open();
+        if (dao != null) {
+            dao.open();
+        }
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        dao.close();
+        if (dao != null) {
+            dao.close();
+        }
         super.onPause();
     }
 }

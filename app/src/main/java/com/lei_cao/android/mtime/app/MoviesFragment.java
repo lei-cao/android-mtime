@@ -1,6 +1,5 @@
 package com.lei_cao.android.mtime.app;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -58,6 +57,10 @@ public class MoviesFragment extends Fragment {
 
     MoviesDAO dao;
 
+    public interface MovieCallback {
+        public void onItemSelected(Movie movie);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -75,10 +78,8 @@ public class MoviesFragment extends Fragment {
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String extraName = getResources().getString(R.string.intent_movie_name);
                 Movie movie = adapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailsActivity.class).putExtra(extraName, movie);
-                startActivity(intent);
+                ((MovieCallback) getActivity()).onItemSelected(movie);
             }
         });
 
@@ -94,7 +95,6 @@ public class MoviesFragment extends Fragment {
                 int lastInScreen = firstVisibleItem + visibleItemCount;
                 if ((lastInScreen == totalItemCount) && !loadingMore) {
                     if (!stopLoadingData && !loadingMore) {
-//                        loadingMore = true;
                         Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sort);
                         call.enqueue(callbackSortByPopularityDesc);
                     }
