@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -27,9 +28,9 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class DetailActivityFragment extends Fragment {
+public class DetailFragment extends Fragment {
 
-    private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
+    private final String LOG_TAG = DetailFragment.class.getSimpleName();
 
     static final String DETAIL_MOVIE = "MOVIE";
 
@@ -46,7 +47,13 @@ public class DetailActivityFragment extends Fragment {
 
     Movie movie;
 
-    public DetailActivityFragment() {
+    Boolean mTwoPane = false;
+
+    public interface DetailCallback {
+        public void onShowReviews(Movie movie);
+    }
+
+    public DetailFragment() {
     }
 
     @Override
@@ -56,13 +63,13 @@ public class DetailActivityFragment extends Fragment {
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            movie = arguments.getParcelable(DetailActivityFragment.DETAIL_MOVIE);
+            movie = arguments.getParcelable(DetailFragment.DETAIL_MOVIE);
         } else {
             Intent intent = getActivity().getIntent();
-            if (intent == null || !intent.hasExtra(DetailActivityFragment.DETAIL_MOVIE)) {
+            if (intent == null || !intent.hasExtra(DetailFragment.DETAIL_MOVIE)) {
                 return rootView;
             }
-            movie = (Movie) intent.getParcelableExtra(DetailActivityFragment.DETAIL_MOVIE);
+            movie = (Movie) intent.getParcelableExtra(DetailFragment.DETAIL_MOVIE);
         }
         if (movie == null) {
             return rootView;
@@ -116,6 +123,17 @@ public class DetailActivityFragment extends Fragment {
             }
         });
 
+        Button reviews = (Button) rootView.findViewById(R.id.detail_movie_reviews_button);
+        reviews.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTwoPane) {
+                    ((MoviesFragment.MovieCallback) getActivity()).onShowReviews(movie);
+                } else {
+                    ((DetailCallback) getActivity()).onShowReviews(movie);
+                }
+            }
+        });
 
         dao = new MoviesDAO(this.getActivity());
         dao.open();

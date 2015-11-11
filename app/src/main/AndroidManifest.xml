@@ -20,14 +20,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailsActivity"
-            android:label="@string/title_activity_detail"
+            android:name=".DetailActivity"
+            android:label="@string/title_activity_movie_detail"
+            android:launchMode="singleTop"
             android:parentActivityName=".MainActivity" >
         </activity>
         <activity
-            android:name=".MovieDetailActivity"
-            android:label="@string/title_activity_movie_detail"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:name=".ReviewActivity"
+            android:label="@string/title_activity_review"
+            android:parentActivityName=".DetailActivity" >
         </activity>
     </application>
 

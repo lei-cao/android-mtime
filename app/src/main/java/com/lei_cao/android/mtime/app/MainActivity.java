@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Mo
 
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.movie_detail_container, new DetailActivityFragment())
+                        .replace(R.id.movie_detail_container, new DetailFragment())
                         .commit();
             }
         } else {
@@ -57,17 +57,36 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Mo
     public void onItemSelected(Movie movie) {
         if (mTwoPane) {
             Bundle args = new Bundle();
-            args.putParcelable(DetailActivityFragment.DETAIL_MOVIE, movie);
+            args.putParcelable(DetailFragment.DETAIL_MOVIE, movie);
 
-            DetailActivityFragment fragment = new DetailActivityFragment();
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+            fragment.mTwoPane = true;
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class).putExtra(DetailFragment.DETAIL_MOVIE, movie);
+            startActivity(intent);
+        }
+    }
+
+
+    @Override
+    public void onShowReviews(Movie movie) {
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putParcelable(DetailFragment.DETAIL_MOVIE, movie);
+
+            ReviewFragment fragment = new ReviewFragment();
             fragment.setArguments(args);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, fragment)
                     .commit();
         } else {
-                Intent intent = new Intent(this, DetailsActivity.class).putExtra(DetailActivityFragment.DETAIL_MOVIE, movie);
-                startActivity(intent);
+            Intent intent = new Intent(this, ReviewActivity.class).putExtra(DetailFragment.DETAIL_MOVIE, movie);
+            startActivity(intent);
         }
-
     }
+
 }

@@ -59,6 +59,7 @@ public class MoviesFragment extends Fragment {
 
     public interface MovieCallback {
         public void onItemSelected(Movie movie);
+        public void onShowReviews(Movie movie);
     }
 
     @Override

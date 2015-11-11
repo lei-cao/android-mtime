@@ -31,6 +31,7 @@ public class ReviewFragment extends Fragment {
     // The apiKey
     String apiKey;
 
+    Movie movie;
     public ReviewFragment() {
         // Required empty public constructor
     }
@@ -49,12 +50,19 @@ public class ReviewFragment extends Fragment {
         service = new MovieService();
         apiKey = getResources().getString(R.string.themoviedb_api_key);
 
-        Intent intent = getActivity().getIntent();
-        String extraName = DetailActivityFragment.DETAIL_MOVIE;
-        if (intent == null || !intent.hasExtra(extraName)) {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            movie = arguments.getParcelable(DetailFragment.DETAIL_MOVIE);
+        } else {
+            Intent intent = getActivity().getIntent();
+            if (intent == null || !intent.hasExtra(DetailFragment.DETAIL_MOVIE)) {
+                return rootView;
+            }
+            movie = (Movie) intent.getParcelableExtra(DetailFragment.DETAIL_MOVIE);
+        }
+        if (movie == null) {
             return rootView;
         }
-        final Movie movie = (Movie) intent.getParcelableExtra(extraName);
 
         ListView reviews = (ListView) rootView.findViewById(R.id.detail_reviews);
         adapter = new ReviewsAdapter(getActivity(), new ArrayList<Review>());
