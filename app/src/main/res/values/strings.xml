@@ -11,7 +11,8 @@
     <string name="movie_review_author_textview">UserName</string>
     <string name="detail_trailers_title">Trailers:</string>
     <string name="detail_reviews_title">Reviews:</string>
-    <string name="title_activity_movie_detail">MovieDetailActivity</string>
-    <string name="title_activity_review">ReviewActivity</string>
+    <string name="title_activity_movie_detail">Movie Detail</string>
+    <string name="title_activity_review">Reviews</string>
     <string name="detail_movie_reviews">Reviews</string>
+    <string name="action_share">Share</string>
 </resources>

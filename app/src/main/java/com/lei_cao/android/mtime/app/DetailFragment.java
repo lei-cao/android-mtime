@@ -4,7 +4,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,8 +35,6 @@ import retrofit.Retrofit;
 
 public class DetailFragment extends Fragment {
 
-    private final String LOG_TAG = DetailFragment.class.getSimpleName();
-
     static final String DETAIL_MOVIE = "MOVIE";
 
     // The videos adapter
@@ -49,11 +52,18 @@ public class DetailFragment extends Fragment {
 
     Boolean mTwoPane = false;
 
+    private ShareActionProvider mShareActionProvider;
+
+    private String mVideo;
+
+    private static final String MOVIE_SHARE_HASHTAG = " #MTime";
+
     public interface DetailCallback {
         public void onShowReviews(Movie movie);
     }
 
     public DetailFragment() {
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -111,8 +121,16 @@ public class DetailFragment extends Fragment {
             public void onResponse(Response<MovieResponses.VideosResponse> response, Retrofit retrofit) {
                 if (response.body() != null && response.body().results.size() != 0) {
                     adapter.clear();
+                    int i = 0;
                     for (Video v : response.body().results) {
+                        if (i == 0) {
+                            mVideo = v.GetVideoUrl();
+                            if (mShareActionProvider != null) {
+                                mShareActionProvider.setShareIntent(createShareMovie());
+                            }
+                        }
                         adapter.add(v);
+                        i++;
                     }
                     adapter.notifyDataSetChanged();
                 }
@@ -180,4 +198,32 @@ public class DetailFragment extends Fragment {
         }
         super.onPause();
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.detail_fragment, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
+        if (mVideo != null) {
+            mShareActionProvider.setShareIntent(createShareMovie());
+        }
+    }
+
+    private Intent createShareMovie() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mVideo + MOVIE_SHARE_HASHTAG);
+        return shareIntent;
+    }
+
+
 }

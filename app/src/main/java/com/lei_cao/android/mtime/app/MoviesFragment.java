@@ -1,7 +1,9 @@
 package com.lei_cao.android.mtime.app;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +42,8 @@ public class MoviesFragment extends Fragment {
     // The grid view
     GridView grid;
 
+    Parcelable state;
+
     // The movies adapter for the grid view
     MovieGridAdapter adapter;
 
@@ -57,9 +61,38 @@ public class MoviesFragment extends Fragment {
 
     MoviesDAO dao;
 
+    // If the grid is load the first time
+    boolean firstLoad = true;
+
+    // The Callback needed to implement by the implementer
     public interface MovieCallback {
+        // The call back while movie in movie list selected
         public void onItemSelected(Movie movie);
+
+        // The call back for showing reviews
         public void onShowReviews(Movie movie);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (!stopLoadingData && !loadingMore) {
+            if (firstLoad) {
+                loadingMore = true;
+                Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sort);
+                call.enqueue(callbackSortByPopularityDesc);
+            }
+        }
+
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            firstLoad = false;
+        }
     }
 
     @Override
@@ -111,13 +144,6 @@ public class MoviesFragment extends Fragment {
 
         Button myFavorites = (Button) rootView.findViewById(R.id.sort_by_favorite);
         myFavorites.setOnClickListener(listenerMyFavorites);
-
-        if (!stopLoadingData && !loadingMore) {
-            loadingMore = true;
-
-            Call<MovieResponses.MoviesResponse> call = service.service.discoverMovies(apiKey, currentPage, sort);
-            call.enqueue(callbackSortByPopularityDesc);
-        }
 
         dao = new MoviesDAO(this.getActivity());
         dao.open();
@@ -219,5 +245,11 @@ public class MoviesFragment extends Fragment {
     public void onPause() {
         dao.close();
         super.onPause();
+    }
+
+    public void setTwoPanel(boolean twoPanel) {
+        if (twoPanel) {
+            grid.setNumColumns(3);
+        }
     }
 }
