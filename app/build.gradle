@@ -30,5 +30,7 @@ dependencies {
     implementation 'com.github.vungle:vungle-android-sdk:6.3.24'
 
     implementation 'com.google.android.gms:play-services-base:16.1.0'
+    implementation 'com.google.android.gms:play-services-ads-identifier:16.0.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
 
 }
