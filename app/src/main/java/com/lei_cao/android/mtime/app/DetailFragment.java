@@ -160,7 +160,7 @@ public class DetailFragment extends Fragment {
         Movie m = dao.getMovie(movie.id);
         if (m != null) {
             movie.favorited = true;
-            favorite.setImageResource(R.drawable.abc_btn_rating_star_on_mtrl_alpha);
+            favorite.setImageResource(android.R.drawable.btn_star_big_on);
         }
         favorite.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,12 +168,12 @@ public class DetailFragment extends Fragment {
                 v.setEnabled(false);
                 if (movie.favorited) {
                     dao.deleteMovie(movie);
-                    favorite.setImageResource(R.drawable.abc_btn_rating_star_off_mtrl_alpha);
+                    favorite.setImageResource(android.R.drawable.btn_star_big_off);
                     movie.favorited = false;
                 } else {
                     Movie m = dao.createMovie(movie);
                     if (m != null) {
-                        favorite.setImageResource(R.drawable.abc_btn_rating_star_on_mtrl_alpha);
+                        favorite.setImageResource(android.R.drawable.btn_star_big_on);
                         movie.favorited = true;
                     }
                 }

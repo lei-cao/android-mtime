@@ -53,9 +53,9 @@
                 android:id="@+id/detail_movie_favorite_imagebutton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/detail_movie_release_date"
                 android:layout_below="@id/detail_movie_vote"
-                android:src="@drawable/abc_btn_rating_star_off_mtrl_alpha" />
+                android:layout_alignLeft="@id/detail_movie_release_date"
+                android:src="@android:drawable/btn_star_big_off" />
 
             <Button
                 android:id="@+id/detail_movie_reviews_button"
